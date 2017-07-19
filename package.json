@@ -1,7 +1,7 @@
 {
   "name": "RAPIP",
   "version": "1.0.0",
-  "description": "EST API Performance. Test APIs from the perspective of both a NODE server and a Mobile phone.",
+  "description": "TEST API Performance from the perspective of both a NODE server and a Mobile phone.",
   "main": "src/index.js",
   "scripts": {
     "example:client": "node example/client.js",
@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/thearegee/api-performance-tester.git"
+    "url": "git+https://github.com/thearegee/RAPIP.git"
   },
   "author": "Robin Glen",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/thearegee/api-performance-tester/issues"
+    "url": "https://github.com/thearegee/RAPIP/issues"
   },
-  "homepage": "https://github.com/thearegee/api-performance-tester#readme",
+  "homepage": "https://github.com/thearegee/RAPIP#readme",
   "dependencies": {
     "chrome-launcher": "^0.3.1",
     "chrome-remote-interface": "^0.24.2",
