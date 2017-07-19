@@ -1,7 +1,7 @@
 # RAPIP
-> REST API Performance. Test APIs from the perspective of both a NODE server and a Mobile phone.
+> REST API Performance. Test APIs from the perspective of both a Mobile phone and a Node server.
 
-This module will help you analyse the performance of of any REST API, giving you to not just the response time but how long it will take to process.
+This module will help you analyse the performance of of any REST API, giving you to not just the response time but how long it will take to parse, filesize and any compression used.
 
 _RAPIP uses Async/Await so needs Node 8 and Chrome 55_
 
@@ -161,3 +161,4 @@ You can try this example with the command:
 * Add some tests
 * Make the code isomorphic
 * Move to use imports
+* Add more than gZip compression
