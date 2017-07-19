@@ -1,8 +1,8 @@
 {
-  "name": "api-performance-tester",
+  "name": "RAPIP",
   "version": "1.0.0",
-  "description": "An application to test the performance of a rest API from server and mobile perspective",
-  "main": "index.js",
+  "description": "EST API Performance. Test APIs from the perspective of both a NODE server and a Mobile phone.",
+  "main": "src/index.js",
   "scripts": {
     "example:client": "node example/client.js",
     "example:server": "node example/server.js",
@@ -20,8 +20,7 @@
   "homepage": "https://github.com/thearegee/api-performance-tester#readme",
   "dependencies": {
     "chrome-launcher": "^0.3.1",
-    "chrome-remote-interface": "^0.24.1",
-    "concurrently": "^3.5.0",
+    "chrome-remote-interface": "^0.24.2",
     "express": "^4.15.3",
     "express-handlebars": "^3.0.0",
     "node-fetch": "^1.7.1"

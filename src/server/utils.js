@@ -7,10 +7,14 @@ async function fetchData(url) {
     const diff = process.hrtime(time);
     const ms = convertNanToMilliSeconds(diff);
     const responseSize = response.headers.get('Content-Length') / 1024;
+    // add support for Accept-Encoding: "gzip, deflate, sdch, br",
+    const contentEncoding = response.headers.get('Content-Encoding');
+    const gzipEnabled = contentEncoding === 'gzip' ? true : false;
     return {
       data: response,
       timings: ms,
-      responseSize: responseSize.toFixed(0)
+      responseSize: responseSize.toFixed(2),
+      gzipEnabled: gzipEnabled
     };
   } catch (error) {
     console.log(error);

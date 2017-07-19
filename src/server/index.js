@@ -1,25 +1,35 @@
 const { fetchData, parseJson, stringifyJson } = require('./utils');
 
-const performanceTestApi = async path => {
-  const request = await fetchData(path);
-  const parse = await parseJson(request.data);
-  const stringify = stringifyJson(request.data);
-
-  return {
-    request: {
-      raw: request.timings,
-      message: `${request.timings}ms`
-    },
-    parse: {
-      raw: parse,
-      message: `${parse}ms`
-    },
-    responseSize: {
-      raw: request.responseSize,
-      message: `${request.responseSize}kb`
-    },
-    path: path
-  };
+const performanceTestApi = async api => {
+  try {
+    const request = await fetchData(api);
+    const parse = await parseJson(request.data);
+    const stringify = stringifyJson(request.data);
+    return {
+      response: {
+        request: {
+          raw: Number(request.timings),
+          message: `${request.timings}ms`
+        },
+        parse: {
+          raw: Number(parse),
+          message: `${parse}ms`
+        },
+        responseSize: {
+          raw: Number(request.responseSize),
+          message: `${request.responseSize}kb`
+        },
+        stringify: {
+          raw: Number(stringify),
+          message: `${stringify}ms`
+        },
+        gzipEnabled: request.gzipEnabled,
+        api: api
+      }
+    };
+  } catch (error) {
+    return { error: error };
+  }
 };
 
 module.exports = performanceTestApi;

@@ -10,12 +10,9 @@ async function fetchData(url) {
     );
     const timings = performance.getEntriesByName('fetch-request-audit')[0]
       .duration;
-    const responseSize = response.headers.get('Content-Length') / 1024;
     return {
       data: response,
-      timings: timings.toFixed(0),
-      // this is broken need a add headers to api to fix
-      responseSize: responseSize.toFixed(0)
+      timings: timings.toFixed(0)
     };
   } catch (error) {
     console.log(error);
@@ -102,22 +99,17 @@ function performanceTestApiWithXHR(path) {
   });
 }
 
-function formatPerformanceMetrics(name, request, parse, path) {
+function formatPerformanceMetrics(name, request, parse, api) {
   return {
     name: name,
     request: {
-      raw: request.timings,
+      raw: Number(request.timings),
       message: `${request.timings}ms`
     },
     parse: {
-      raw: parse,
+      raw: Number(parse),
       message: `${parse}ms`
-    },
-    responseSize: {
-      raw: request.responseSize,
-      message: `${request.responseSize}kb`
-    },
-    path: path
+    }
   };
 }
 
