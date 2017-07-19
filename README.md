@@ -14,7 +14,7 @@ npm install --save RAPIP
 ## Usage
 
 ```Javascript
-const { server, client } = require('RAPIP');
+const { server, client } = require('rapip');
 ```
 
 ### Reference
@@ -108,7 +108,7 @@ You can configure both server and clientside runners.
 Performance test API on the server side.
 
 ```Javascript
-const { server } = require('RAPIP');
+const { server } = require('rapip');
 
 const API = 'https://httpbin.org/user-agent';
 
@@ -133,7 +133,7 @@ You can try this example with the command:
 Performance test API from a mobile device.
 
 ```Javascript
-const { client } = require('RAPIP');
+const { client } = require('rapip');
 
 const API = 'https://httpbin.org/user-agent';
 

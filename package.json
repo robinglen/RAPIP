@@ -1,5 +1,5 @@
 {
-  "name": "RAPIP",
+  "name": "rapip",
   "version": "1.0.0",
   "description": "TEST API Performance from the perspective of both a NODE server and a Mobile phone.",
   "main": "src/index.js",
