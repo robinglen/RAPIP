@@ -1,7 +1,7 @@
 {
   "name": "rapip",
   "version": "1.0.0",
-  "description": "TEST API Performance from the perspective of both a NODE server and a Mobile phone.",
+  "description": "REST API Performance. Test APIs from the perspective of both a Mobile phone and a Node server",
   "main": "src/index.js",
   "scripts": {
     "example:client": "node example/client.js",
