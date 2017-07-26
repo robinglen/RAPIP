@@ -1,15 +1,17 @@
-const fetch = require('node-fetch');
+const fetch = require("node-fetch");
 
-async function fetchData(url) {
+async function fetchData(url, headers) {
   try {
     const time = process.hrtime();
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: headers
+    });
     const diff = process.hrtime(time);
     const ms = convertNanToMilliSeconds(diff);
-    const responseSize = response.headers.get('Content-Length') / 1024;
+    const responseSize = response.headers.get("Content-Length") / 1024;
     // add support for Accept-Encoding: "gzip, deflate, sdch, br",
-    const contentEncoding = response.headers.get('Content-Encoding');
-    const gzipEnabled = contentEncoding === 'gzip' ? true : false;
+    const contentEncoding = response.headers.get("Content-Encoding");
+    const gzipEnabled = contentEncoding === "gzip" ? true : false;
     return {
       data: response,
       timings: ms,

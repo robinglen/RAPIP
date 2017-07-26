@@ -1,8 +1,8 @@
-const { fetchData, parseJson, stringifyJson } = require('./utils');
+const { fetchData, parseJson, stringifyJson } = require("./utils");
 
-const performanceTestApi = async api => {
+const performanceTestApi = async (api, headers = {}) => {
   try {
-    const request = await fetchData(api);
+    const request = await fetchData(api, headers);
     const parse = await parseJson(request.data);
     const stringify = stringifyJson(request.data);
     return {

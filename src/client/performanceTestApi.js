@@ -1,24 +1,25 @@
-const chromeLauncher = require('chrome-launcher');
-const CDP = require('chrome-remote-interface');
-const fetch = require('node-fetch');
+const chromeLauncher = require("chrome-launcher");
+const CDP = require("chrome-remote-interface");
+const fetch = require("node-fetch");
 // taken from lighthouse
 // https://github.com/GoogleChrome/lighthouse/blob/63b4ac14d0a871ade0630db2885edd7848843243/lighthouse-core/lib/emulation.js
-const emulation = require('./emulation');
+const emulation = require("./emulation");
 
 function launchChrome(headless) {
   return chromeLauncher.launch({
-    chromeFlags: ['--disable-gpu', headless ? '--headless' : '']
+    chromeFlags: ["--disable-gpu", headless ? "--headless" : ""]
   });
 }
 
 async function performanceTestApi(
   api,
+  headers,
   emulator = {
     cpuThrottling: true,
     networkThrottling: true
   },
   headless = true,
-  url = 'http://localhost:3000'
+  url = "http://localhost:3000"
 ) {
   let performanceMetrics = {
     api: api
@@ -61,7 +62,7 @@ async function performanceTestApi(
 
     // Client will not let us by default get some specific headers
     // so we are going around it we call tha pi from the server before mobile perf testing
-    const serverHeaders = await getServersideHeaders(api);
+    const serverHeaders = await getServersideHeaders(api, headers);
     performanceMetrics.gzipEnabled = serverHeaders.gzipEnabled;
     performanceMetrics.filesize = serverHeaders.filesize;
 
@@ -69,13 +70,19 @@ async function performanceTestApi(
     await Page.loadEventFired();
 
     const userAgent = await Runtime.evaluate({
-      expression: 'navigator.userAgent'
+      expression: "navigator.userAgent"
     });
     performanceMetrics.emulation.userAgent = userAgent.result.value;
 
+    // setting params for api calls
+    let params = `"${api}"`;
+    if (headers) {
+      params = `"${api}", ${headers}`;
+    }
+
     const fetchPerformanceMetrics = await Runtime.evaluate({
       awaitPromise: true,
-      expression: `performanceTestApiWithFetch("${api}")`
+      expression: `performanceTestApiWithFetch(${params})`
     });
     performanceMetrics.fetch = JSON.parse(fetchPerformanceMetrics.result.value);
 
@@ -85,7 +92,7 @@ async function performanceTestApi(
 
     const xhrPerformanceMetrics = await Runtime.evaluate({
       awaitPromise: true,
-      expression: `performanceTestApiWithXHR("${api}")`
+      expression: `performanceTestApiWithXHR(${params})`
     });
 
     performanceMetrics.xhr = JSON.parse(xhrPerformanceMetrics.result.value);
@@ -102,10 +109,10 @@ async function performanceTestApi(
 async function getServersideHeaders(url) {
   try {
     const response = await fetch(url);
-    const contentEncoding = response.headers.get('Content-Encoding');
+    const contentEncoding = response.headers.get("Content-Encoding");
     // add support for Accept-Encoding: "gzip, deflate, sdch, br",
-    const gzipEnabled = contentEncoding === 'gzip' ? true : false;
-    const responseSize = (response.headers.get('Content-Length') /
+    const gzipEnabled = contentEncoding === "gzip" ? true : false;
+    const responseSize = (response.headers.get("Content-Length") /
       1024).toFixed(2);
     return {
       gzipEnabled: gzipEnabled,
@@ -116,8 +123,8 @@ async function getServersideHeaders(url) {
     };
   } catch (error) {
     return {
-      gzipEnabled: 'failed',
-      filesize: 'failed'
+      gzipEnabled: "failed",
+      filesize: "failed"
     };
   }
 }

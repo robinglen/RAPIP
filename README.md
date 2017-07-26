@@ -19,13 +19,14 @@ const { server, client } = require('rapip');
 
 ### Reference
 
-#### `client(api, emulator, headless, url)`
+#### `client(api, headers, emulator, headless, url)`
 Start a mobile client performance audit, it uses the Lighthouse Nexus 5 emulator (https://github.com/GoogleChrome/lighthouse/blob/63b4ac14d0a871ade0630db2885edd7848843243/lighthouse-core/lib/emulation.js).
 
 You will get results for both an XHR and Fetch request.
 
 ##### Parameters
 * `api` - **Required.** String of the api you want to benchmark.
+* `headers` - Object of request headers you want to add to the api call.
 * `emulation` - Object for the emulation configuration.
   * `cpuThrottling` - Boolean for toggling CPU throttling _(Default: true)_.
   * `networkThrottling` - Boolean for toggling Network throttling _(Default: true)_.
@@ -154,6 +155,24 @@ You can try this example with the command:
 
 ```Bash
   npm run example:client
+```
+#### Clientside framework
+
+If you cant to test using the clientside performance framework you can use the command:
+
+```Bash
+  npm run example:client:framework
+```
+This will start a local instance of the framework since you can view in your browser on:
+
+```Bash
+  http://localhost:3000
+```
+
+You can then trigger a performance audit in the console but running the command:
+
+```Javascript
+performanceDemo()
 ```
 
 ## TODO
