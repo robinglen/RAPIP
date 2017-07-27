@@ -116,7 +116,6 @@ function formatPerformanceMetrics(name, request, parse, api) {
 }
 
 // A performance demo you can call if you want to test just in the browser
-// Example using the NET-A-PORTER product api
 function performanceDemo() {
   performanceTestApiWithXHR("https://httpbin.org/user-agent");
 

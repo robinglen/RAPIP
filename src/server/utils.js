@@ -7,7 +7,7 @@ async function fetchData(url, headers) {
       headers: headers
     });
     const diff = process.hrtime(time);
-    const ms = convertNanToMilliSeconds(diff);
+    const ms = _convertNanToMilliSeconds(diff);
     const responseSize = response.headers.get("Content-Length") / 1024;
     // add support for Accept-Encoding: "gzip, deflate, sdch, br",
     const contentEncoding = response.headers.get("Content-Encoding");
@@ -23,7 +23,7 @@ async function fetchData(url, headers) {
   }
 }
 
-function convertNanToMilliSeconds(hrTimer) {
+function _convertNanToMilliSeconds(hrTimer) {
   const nanoSeconds = hrTimer[1];
   const microSeconds = nanoSeconds / 1e3;
   const milliSeconds = microSeconds / 1e3;
@@ -34,7 +34,7 @@ async function parseJson(response) {
   const time = process.hrtime();
   const json = await response.json();
   const diff = process.hrtime(time);
-  const ms = convertNanToMilliSeconds(diff);
+  const ms = _convertNanToMilliSeconds(diff);
   return ms;
 }
 
@@ -42,8 +42,13 @@ function stringifyJson(json) {
   const time = process.hrtime();
   const string = JSON.stringify(json);
   const diff = process.hrtime(time);
-  const ms = convertNanToMilliSeconds(diff);
+  const ms = _convertNanToMilliSeconds(diff);
   return ms;
 }
 
-module.exports = { fetchData, parseJson, stringifyJson };
+module.exports = {
+  _convertNanToMilliSeconds,
+  fetchData,
+  parseJson,
+  stringifyJson
+};

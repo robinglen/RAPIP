@@ -68,11 +68,12 @@ You will get results for both an XHR and Fetch request.
 * `fetch` - Request and parse metrics for a fetch request.
 * `xhr` - Request and parse metrics for a xhr request.
 
-#### `server(api)`
+#### `server(api, headers)`
 Start a server performance audit.
 
 ##### Parameters
 * `api` - **Required.** String of the api you want to benchmark.
+* `headers` - Object of request headers you want to add to the api call.
 
 ##### Response
 ```Javascript
@@ -93,41 +94,9 @@ Start a server performance audit.
 * `gzipEnabled` - If the code is encoded.
 * `api` - api called.
 
-
-#### `client(autorun)`
-Initialise lighthouse cron.
-
-##### Parameters
-* `autorun` - Boolean for if cron should do first run instantly *(Default: false)*
-
 ### Examples
 
 You can configure both server and clientside runners.
-
-#### Server
-
-Performance test API on the server side.
-
-```Javascript
-const { server } = require('rapip');
-
-const API = 'https://httpbin.org/user-agent';
-
-async function getPerformanceMetrics() {
-  const results = await server(`${API}`);
-  console.log(results);
-  process.exit(0);
-}
-
-getPerformanceMetrics();
-
-```
-
-You can try this example with the command:
-
-```Bash
-  npm run example:server
-```
 
 #### Clientside
 
@@ -156,14 +125,40 @@ You can try this example with the command:
 ```Bash
   npm run example:client
 ```
+
+#### Server
+
+Performance test API on the server side.
+
+```Javascript
+const { server } = require('rapip');
+
+const API = 'https://httpbin.org/user-agent';
+
+async function getPerformanceMetrics() {
+  const results = await server(`${API}`);
+  console.log(results);
+  process.exit(0);
+}
+
+getPerformanceMetrics();
+
+```
+
+You can try this example with the command:
+
+```Bash
+  npm run example:server
+```
+
 #### Clientside framework
 
-If you cant to test using the clientside performance framework you can use the command:
+If you want to the clientside performance framework you can use the command:
 
 ```Bash
   npm run example:client:framework
 ```
-This will start a local instance of the framework since you can view in your browser on:
+This will start a local instance of the framework which you can view in your browser with the url:
 
 ```Bash
   http://localhost:3000
@@ -174,6 +169,8 @@ You can then trigger a performance audit in the console but running the command:
 ```Javascript
 performanceDemo()
 ```
+
+This will console log the response of a demo request to: `https://httpbin.org/user-agent` with both Fetch and XHR.
 
 ## TODO
 * Clean the code
