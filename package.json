@@ -4,8 +4,8 @@
   "description": "REST API Performance. Test APIs from the perspective of both a Mobile phone and a Node server",
   "main": "src/index.js",
   "scripts": {
+    "start": "node example/client-framework.js",
     "example:client": "node example/client.js",
-    "example:client:framework": "node example/client-framework.js",
     "example:server": "node example/server.js",
     "test": "NODE_ENV=test jest --coverage"
   },

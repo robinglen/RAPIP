@@ -20,4 +20,25 @@ app.get('/', (req, res) => {
   res.render('home');
 });
 
+// this is a workaround for apis that don't have CORS enabled
+// its less than ideal but I've made a feature request to chrome
+// to get around this:
+// https://t.co/vUbhobbDYT
+app.get('/api', (req, res) => {
+  const api = req.query.api;
+  // convert this shit to await
+  const response = fetch(api)
+    .then(response => {
+      // iterate headers and check for gzip, gzip if possible, add cross origin header
+      response.json().then(body => {
+        res.json(body);
+      }).catch(error => {
+        res.send(error);
+      };
+    })
+    .catch(error => {
+      res.send(error);
+    });
+});
+
 module.exports = app;

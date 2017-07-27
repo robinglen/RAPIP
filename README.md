@@ -1,5 +1,5 @@
 # RAPIP
-> REST API Performance. Test APIs from the perspective of both a Mobile phone and a Node server.
+> [ra-peep] REST API Performance. Test APIs from the perspective of both a Mobile phone and a Node server.
 
 This module will help you analyse the performance of of any REST API, giving you to not just the response time but how long it will take to parse, filesize and any compression used.
 
@@ -156,7 +156,7 @@ You can try this example with the command:
 If you want to the clientside performance framework you can use the command:
 
 ```Bash
-  npm run example:client:framework
+  npm start
 ```
 This will start a local instance of the framework which you can view in your browser with the url:
 
