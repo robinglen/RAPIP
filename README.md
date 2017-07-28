@@ -1,3 +1,6 @@
+# I HAVE COMPLETELY BROKEN THIS - V1 OK BUT DOCS OUT OF DATE
+
+
 # RAPIP
 > [ra-peep] REST API Performance. Test APIs from the perspective of both a Mobile phone and a Node server.
 
@@ -173,6 +176,7 @@ performanceDemo()
 This will console log the response of a demo request to: `https://httpbin.org/user-agent` with both Fetch and XHR.
 
 ## TODO
+* make filesize and responsesize consistant, use dev tools network for naming
 * Clean the code
 * Add some tests
 * Make the code isomorphic

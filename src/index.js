@@ -1,10 +1,10 @@
 const client = {
-  framework: require('./client'),
-  performanceTestApi: require('./client/performanceTestApi')
+  framework: require("./client"),
+  performanceTestApi: require("./client/performanceTestApi")
 };
-const server = require('./server');
+const { performanceTestApi } = require("./server");
 
 module.exports = {
   client,
-  server
+  server: performanceTestApi
 };

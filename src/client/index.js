@@ -32,6 +32,7 @@ app.get('/', (req, res) => {
 app.get('/api', (req, res) => {
   const api = req.query.api;
   const requestHeaders = req.headers;
+  // if I remove this fetch and use request can I clean the logic of all this shit
   const response = fetch(api, requestHeaders)
     .then(response => {
       const time = process.hrtime();
@@ -55,6 +56,7 @@ app.get('/api', (req, res) => {
             // calculate how much overtime this proxy took
             const diff = process.hrtime(time);
             const proxyOverhead = utils.convertNanToMilliSeconds(diff);
+
             headers['x-rapip-proxy-overhead'] = proxyOverhead;
 
             // send that shit
@@ -77,6 +79,8 @@ function getProxyHeaders(headers) {
     proxyHeaders[header] = headers[header][0];
   }
   // add RAPIP requried headers
+  proxyHeaders['access-control-expose-headers'] =
+    'x-rapip-proxy, x-rapip-proxy-overhead';
   proxyHeaders['access-control-allow-origin'] = '*';
   proxyHeaders['x-rapip-proxy'] = 'HIT';
   return proxyHeaders;

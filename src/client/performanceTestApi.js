@@ -1,13 +1,13 @@
-const chromeLauncher = require("chrome-launcher");
-const CDP = require("chrome-remote-interface");
-const fetch = require("node-fetch");
+const chromeLauncher = require('chrome-launcher');
+const CDP = require('chrome-remote-interface');
+const fetch = require('node-fetch');
 // taken from lighthouse
 // https://github.com/GoogleChrome/lighthouse/blob/63b4ac14d0a871ade0630db2885edd7848843243/lighthouse-core/lib/emulation.js
-const emulation = require("./emulation");
+const emulation = require('./emulation');
 
 function launchChrome(headless) {
   return chromeLauncher.launch({
-    chromeFlags: ["--disable-gpu", headless ? "--headless" : ""]
+    chromeFlags: ['--disable-gpu', headless ? '--headless' : '']
   });
 }
 
@@ -19,7 +19,7 @@ async function performanceTestApi(
     networkThrottling: true
   },
   headless = true,
-  url = "http://localhost:3000"
+  url = 'http://localhost:3000'
 ) {
   let performanceMetrics = {
     api: api
@@ -70,7 +70,7 @@ async function performanceTestApi(
     await Page.loadEventFired();
 
     const userAgent = await Runtime.evaluate({
-      expression: "navigator.userAgent"
+      expression: 'navigator.userAgent'
     });
     performanceMetrics.emulation.userAgent = userAgent.result.value;
 
@@ -79,6 +79,8 @@ async function performanceTestApi(
     if (headers) {
       params = `"${api}", ${headers}`;
     }
+
+    //TODO - I NEED TO GET X-RAPIP-OVERHEAD ON HEAD REQUEST SO IT NEED BE DONE IN CLIENT
 
     const fetchPerformanceMetrics = await Runtime.evaluate({
       awaitPromise: true,
@@ -109,10 +111,13 @@ async function performanceTestApi(
 async function getServersideHeaders(url) {
   try {
     const response = await fetch(url);
-    const contentEncoding = response.headers.get("Content-Encoding");
-    // add support for Accept-Encoding: "gzip, deflate, sdch, br",
-    const gzipEnabled = contentEncoding === "gzip" ? true : false;
-    const responseSize = (response.headers.get("Content-Length") /
+    const contentEncoding = response.headers.get('Content-Encoding');
+    const rapipProxyEnabled = false;
+    const rapipProxyOverhead = 0;
+
+    // add support for Accept-Encoding: "gzip, deflate, sdch, br", - in the future
+    const gzipEnabled = contentEncoding === 'gzip' ? true : false;
+    const responseSize = (response.headers.get('Content-Length') /
       1024).toFixed(2);
     return {
       gzipEnabled: gzipEnabled,
@@ -123,8 +128,8 @@ async function getServersideHeaders(url) {
     };
   } catch (error) {
     return {
-      gzipEnabled: "failed",
-      filesize: "failed"
+      gzipEnabled: 'failed',
+      filesize: 'failed'
     };
   }
 }
