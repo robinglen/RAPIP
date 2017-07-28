@@ -173,6 +173,7 @@ performanceDemo()
 This will console log the response of a demo request to: `https://httpbin.org/user-agent` with both Fetch and XHR.
 
 ## TODO
+* make filesize and responsesize consistant, use dev tools network for naming
 * Clean the code
 * Add some tests
 * Make the code isomorphic
