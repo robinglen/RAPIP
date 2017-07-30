@@ -175,6 +175,15 @@ performanceDemo()
 
 This will console log the response of a demo request to: `https://httpbin.org/user-agent` with both Fetch and XHR.
 
+## Bugs
+* remove fetch from serverside test use request Promise
+* need refactor all the app js code be cleaner
+* updated examples to use the new proxy with headers approach
+* Test all of the gzip work and add back in if needs be compressed
+
+Test in client:
+performanceTestApiWithXHR('http://localhost:3000/api', {'x-rapip-api': 'http://www.matchesfashion.com/mens/just-in/just-in-this-month?page=1&noOfRecordsPerPage=60&sort=&q=&format=json&navMode=notfull&noattraqt=Set', 'x-rapip-headers': '{"test":1}'})
+
 ## TODO
 * make filesize and responsesize consistant, use dev tools network for naming
 * Clean the code

@@ -1,12 +1,13 @@
 const { client } = require("../src");
 
 const proxy = "http://localhost:3000/api";
-const API =
-  "https://www.farfetch.com/uk/sets/men/new-in-this-week-eu-men.aspx?page=2&format=json";
-const path = `${proxy}?path=${API}`;
 
 async function runPerformanceTest() {
-  const results = await client.performanceTestApi(path);
+  const results = await client.performanceTestApi(proxy, {
+    "x-rapip-api":
+      "http://www.matchesfashion.com/mens/just-in/just-in-this-month?page=1&noOfRecordsPerPage=60&sort=&q=&format=json&navMode=notfull&noattraqt=Set",
+    "x-rapip-headers": { headers: "test" }
+  });
   console.log(results.response);
   process.exit(0);
 }

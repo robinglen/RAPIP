@@ -1,5 +1,3 @@
-// ok there is a bug always reporting the same
-
 async function fetchData(url, headers) {
   try {
     performance.mark("fetch-request-start");
@@ -86,10 +84,10 @@ function getDataWithXHR(url, headers = {}, callback) {
     callback(performanceObj);
   };
 
-  for (var header in headers) {
-    requet.setRequestHeader(header, headers[header]);
-  }
   request.open("GET", url, true);
+  for (var header in headers) {
+    request.setRequestHeader(header, headers[header]);
+  }
   request.send();
 }
 
@@ -116,8 +114,8 @@ function parseStringToJSON(data) {
   return timings.toFixed(0);
 }
 
-async function performanceTestApiWithFetch(path) {
-  const response = await fetchData(path);
+async function performanceTestApiWithFetch(path, headers) {
+  const response = await fetchData(path, headers);
   const parse = await parseJson(response.data);
   const performanceMetrics = formatPerformanceMetrics(
     "Fetch",
@@ -132,9 +130,9 @@ async function performanceTestApiWithFetch(path) {
   return JSON.stringify(performanceMetrics);
 }
 
-function performanceTestApiWithXHR(path) {
+function performanceTestApiWithXHR(path, headers) {
   return new Promise((resolve, reject) => {
-    const timings = getDataWithXHR(path, null, response => {
+    const timings = getDataWithXHR(path, headers, response => {
       const parse = parseStringToJSON(response.data);
       const performanceMetrics = formatPerformanceMetrics(
         "XHR",

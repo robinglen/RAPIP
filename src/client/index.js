@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const exphbs = require("express-handlebars");
-const fetch = require("node-fetch");
+const request = require("request-promise");
 const utils = require("../server/utils");
 const zlib = require("zlib");
 const app = express();
@@ -30,65 +30,61 @@ app.get("/", (req, res) => {
 // to get around this:
 // https://t.co/vUbhobbDYT
 app.get("/api", (req, res) => {
-  const api = req.query.path;
+  // collecting headers and making it possible to proxy the api request
   const requestHeaders = req.headers;
-  // if I remove this fetch and use request can I clean the logic of all this shit
-  const response = fetch(api, requestHeaders)
+  const api = requestHeaders["x-rapip-api"];
+  const headers = requestHeaders["x-rapip-headers"];
+  let headersObj = {};
+  if (headers) {
+    headersObj = JSON.parse(headers);
+  }
+  delete requestHeaders["x-rapip-api"];
+  delete requestHeaders["x-rapip-headers"];
+
+  request({
+    uri: api,
+    headers: headersObj,
+    resolveWithFullResponse: true
+  })
     .then(response => {
-      console.log("get response");
       const time = process.hrtime();
-      response
-        .json()
-        .then(body => {
-          console.log("-----------");
-          console.log(body);
-          console.log("-----------");
+      const headers = getProxyHeaders(response.headers);
 
-          // make sure we pas through the headers needed
-          const headers = getProxyHeaders(response.headers._headers);
+      //         if (headers["content-encoding"] === "gzip") {
+      //           // if the api wants a json response gzip it
+      //           zlib.gzip(JSON.stringify(body), (error, result) => {
+      //             render(result);
+      //           });
+      //         } else {
+      //           console.log("no gzip");
+      //           render(body);
+      //         }
 
-          // currently only supporting gzip because... argh
-          if (headers["content-encoding"] === "gzip") {
-            // if the api wants a json response gzip it
-            zlib.gzip(JSON.stringify(body), (error, result) => {
-              render(result);
-            });
-          } else {
-            render(body);
-          }
-
-          function render(body) {
-            // calculate how much overtime this proxy took
-            const diff = process.hrtime(time);
-            const proxyOverhead = utils.convertNanToMilliSeconds(diff);
-
-            headers["x-rapip-proxy-overhead"] = proxyOverhead;
-
-            // send that shit
-            res.set(headers);
-            res.send(body);
-          }
-        })
-        .catch(error => {
-          res.send(error);
-        });
+      render(headers, response, time);
     })
     .catch(error => {
-      res.send(error);
+      console.log(error);
     });
+
+  function render(headers, body, time) {
+    // calculate how much overtime this proxy took
+    const diff = process.hrtime(time);
+    const proxyOverhead = utils.convertNanToMilliSeconds(diff);
+
+    headers["x-rapip-proxy-overhead"] = proxyOverhead;
+
+    res.set(headers);
+    res.send(body);
+  }
 });
 
 function getProxyHeaders(headers) {
-  const proxyHeaders = {};
-  for (let header in headers) {
-    proxyHeaders[header] = headers[header][0];
-  }
   // add RAPIP requried headers
-  proxyHeaders["access-control-expose-headers"] =
+  headers["access-control-expose-headers"] =
     "x-rapip-proxy, x-rapip-proxy-overhead";
-  proxyHeaders["access-control-allow-origin"] = "*";
-  proxyHeaders["x-rapip-proxy"] = "HIT";
-  return proxyHeaders;
+  headers["access-control-allow-origin"] = "*";
+  headers["x-rapip-proxy"] = "HIT";
+  return headers;
 }
 
 module.exports = app;
