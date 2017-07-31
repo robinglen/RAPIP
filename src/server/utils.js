@@ -1,21 +1,24 @@
-const fetch = require('node-fetch');
+const request = require("request-promise");
 
 async function fetchData(url, headers) {
+  const time = process.hrtime();
   try {
-    const time = process.hrtime();
-    const response = await fetch(url, {
-      headers: headers
+    const response = await request({
+      uri: url,
+      headers: headers,
+      resolveWithFullResponse: true
     });
     const diff = process.hrtime(time);
     const ms = convertNanToMilliSeconds(diff);
-    const responseSize = response.headers.get('Content-Length') / 1024;
+    const size = response.headers["Content-Length"] / 1024;
     // add support for Accept-Encoding: "gzip, deflate, sdch, br",
-    const contentEncoding = response.headers.get('Content-Encoding');
-    const gzipEnabled = contentEncoding === 'gzip' ? true : false;
+    // currently only supporting gzip
+    const contentEncoding = response.headers["Content-Encoding"];
+    const gzipEnabled = contentEncoding === "gzip" ? true : false;
     return {
       data: response,
       timings: ms,
-      responseSize: responseSize.toFixed(2),
+      size: size.toFixed(2),
       gzipEnabled: gzipEnabled
     };
   } catch (error) {
@@ -33,7 +36,7 @@ function convertNanToMilliSeconds(hrTimer) {
 
 async function parseJson(response) {
   const time = process.hrtime();
-  const json = await response.json();
+  const json = JSON.parse(response.body);
   const diff = process.hrtime(time);
   const ms = convertNanToMilliSeconds(diff);
   return ms;

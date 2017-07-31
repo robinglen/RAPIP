@@ -41,15 +41,15 @@ app.get("/api", (req, res) => {
   delete requestHeaders["x-rapip-api"];
   delete requestHeaders["x-rapip-headers"];
 
-  request({
-    uri: api,
-    headers: headersObj,
-    resolveWithFullResponse: true
-  })
-    .then(response => {
+  (async () => {
+    try {
+      const response = await request({
+        uri: api,
+        headers: headersObj,
+        resolveWithFullResponse: true
+      });
       const time = process.hrtime();
       const headers = getProxyHeaders(response.headers);
-
       //         if (headers["content-encoding"] === "gzip") {
       //           // if the api wants a json response gzip it
       //           zlib.gzip(JSON.stringify(body), (error, result) => {
@@ -59,12 +59,12 @@ app.get("/api", (req, res) => {
       //           console.log("no gzip");
       //           render(body);
       //         }
-
       render(headers, response, time);
-    })
-    .catch(error => {
+    } catch (error) {
+      res.end(error);
       console.log(error);
-    });
+    }
+  })();
 
   function render(headers, body, time) {
     // calculate how much overtime this proxy took

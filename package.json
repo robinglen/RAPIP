@@ -24,7 +24,6 @@
     "chrome-remote-interface": "^0.24.2",
     "express": "^4.15.3",
     "express-handlebars": "^3.0.0",
-    "node-fetch": "^1.7.1",
     "request": "^2.81.0",
     "request-promise": "^4.2.1"
   },

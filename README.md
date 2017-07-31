@@ -1,10 +1,7 @@
-# I HAVE COMPLETELY BROKEN THIS - V1 OK BUT DOCS OUT OF DATE
-
-
 # RAPIP
 > [ra-peep] REST API Performance. Test APIs from the perspective of both a Mobile phone and a Node server.
 
-This module will help you analyse the performance of of any REST API, giving you to not just the response time but how long it will take to parse, filesize and any compression used.
+This module will help you collect performance metrics of any REST API, giving you to not just the response time but how long it will take to parse, size and any compression used (currently only supporting gzip).
 
 _RAPIP uses Async/Await so needs Node 8 and Chrome 55_
 
@@ -28,7 +25,7 @@ Start a mobile client performance audit, it uses the Lighthouse Nexus 5 emulator
 You will get results for both an XHR and Fetch request.
 
 ##### Parameters
-* `api` - **Required.** String of the api you want to benchmark.
+* `api` - **Required.** String url of the api you want to benchmark.
 * `headers` - Object of request headers you want to add to the api call.
 * `emulation` - Object for the emulation configuration.
   * `cpuThrottling` - Boolean for toggling CPU throttling _(Default: true)_.
@@ -48,7 +45,7 @@ You will get results for both an XHR and Fetch request.
       userAgent: 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5 Build/MRA58N) AppleWebKit/537.36(KHTML, like Gecko) Chrome/61.0.3116.0 Mobile Safari/537.36'
     },
     gzipEnabled: false,
-    filesize: {
+    size: {
       raw: 0.08,
       message: '0.08kb'
     },
@@ -75,7 +72,7 @@ You will get results for both an XHR and Fetch request.
 Start a server performance audit.
 
 ##### Parameters
-* `api` - **Required.** String of the api you want to benchmark.
+* `api` - **Required.** String url of the api you want to benchmark.
 * `headers` - Object of request headers you want to add to the api call.
 
 ##### Response
@@ -93,7 +90,7 @@ Start a server performance audit.
 * `request` - How long in milliseconds the fetch request took.
 * `parse` - How long in milliseconds it took to parse the data.
 * `responseSize` - How large the response was in Kilobytes.
-* `stringify` - How long in milliseconds it took to stringify the parsed the data (interesting for serializing data for universial apps).
+* `stringify` - How long in milliseconds it took to stringify the parsed the data (can be interesting for serializing data for universial apps).
 * `gzipEnabled` - If the code is encoded.
 * `api` - api called.
 
@@ -156,11 +153,14 @@ You can try this example with the command:
 
 #### Clientside framework
 
-If you want to the clientside performance framework you can use the command:
+If you want to use the clientside performance framework you can use the command:
 
 ```Bash
   npm start
 ```
+
+##### Performance benchmarking
+
 This will start a local instance of the framework which you can view in your browser with the url:
 
 ```Bash
@@ -175,17 +175,56 @@ performanceDemo()
 
 This will console log the response of a demo request to: `https://httpbin.org/user-agent` with both Fetch and XHR.
 
+If you want to try your own API call within the framework you can use either `performanceTestApiWithFetch()` or `performanceTestApiWithXHR()`. Both use the same interface:
+
+```Javascript
+performanceTestApiWithFetch(api, headers);
+performanceTestApiWithXHR(api, headers);
+```
+
+* `api` - **Required.** String url of the api you want to benchmark.
+* `headers` - Object of request headers you want to add to the api call.
+
+##### Proxying API calls.
+
+If you are performance testing an API from the perspective of a mobile phone you are constrained by the browser sandbox. If the API doesn't include CORS headers you will not be able to call it from your tests.
+
+However to help this the client framework provides a (hopefully) transparent proxy. You can use it in the following way:
+
+```Javascript
+const { client } = require('rapip');
+
+const PROXY = 'https://localhost:3000/api';
+const API = 'https://httpbin.org/user-agent';
+const HEADERS = {
+  'x-rapip-api': API
+}
+
+async function runPerformanceTest() {
+  const results = await client.performanceTestApi(PROXY, HEADERS);
+  console.log(results);
+  process.exit(0);
+}
+
+client.framework.listen(3000, () => {
+  console.log('Listening on port 3000!');
+  runPerformanceTest();
+});
+```
+
+The call will now goto the proxy service and use the 
+
+
+
 ## Bugs
-* remove fetch from serverside test use request Promise
-* need refactor all the app js code be cleaner
-* updated examples to use the new proxy with headers approach
+
 * Test all of the gzip work and add back in if needs be compressed
 
 Test in client:
 performanceTestApiWithXHR('http://localhost:3000/api', {'x-rapip-api': 'http://www.matchesfashion.com/mens/just-in/just-in-this-month?page=1&noOfRecordsPerPage=60&sort=&q=&format=json&navMode=notfull&noattraqt=Set', 'x-rapip-headers': '{"test":1}'})
 
 ## TODO
-* make filesize and responsesize consistant, use dev tools network for naming
+* add build and deploy steps
 * Clean the code
 * Add some tests
 * Make the code isomorphic

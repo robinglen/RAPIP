@@ -1,4 +1,4 @@
-const { fetchData, parseJson, stringifyJson } = require('./utils');
+const { fetchData, parseJson, stringifyJson } = require("./utils");
 
 const performanceTestApi = async (api, headers = {}) => {
   try {
@@ -22,9 +22,9 @@ function _formatPerformanceMetrics(api, request, parse, stringify) {
         raw: Number(parse),
         message: `${parse}ms`
       },
-      responseSize: {
-        raw: Number(request.responseSize),
-        message: `${request.responseSize}kb`
+      size: {
+        raw: Number(request.size),
+        message: `${request.size}kb`
       },
       stringify: {
         raw: Number(stringify),

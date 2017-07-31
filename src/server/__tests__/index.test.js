@@ -9,7 +9,7 @@ describe("server", () => {
         "http://my.example.api",
         {
           timings: 500,
-          responseSize: 0.8,
+          size: 0.8,
           gzipEnabled: true
         },
         6,
@@ -24,7 +24,7 @@ describe("server", () => {
             raw: 6
           },
           request: { message: "500ms", raw: 500 },
-          responseSize: { message: "0.8kb", raw: 0.8 },
+          size: { message: "0.8kb", raw: 0.8 },
           stringify: { message: "2ms", raw: 2 }
         }
       });
