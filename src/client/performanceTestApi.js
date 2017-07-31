@@ -77,7 +77,8 @@ async function performanceTestApi(
     // setting params for api calls
     let params = `"${api}"`;
     if (headers) {
-      params = `"${api}", ${headers}`;
+      const headersString = JSON.stringify(headers);
+      params = `"${api}", ${headersString}`;
     }
 
     const fetchPerformanceMetrics = await Runtime.evaluate({
