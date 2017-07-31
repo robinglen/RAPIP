@@ -1,6 +1,6 @@
-const { client } = require("../src");
+const { client } = require('../src');
 
-const API = "https://httpbin.org/user-agent";
+const API = 'https://httpbin.org/user-agent';
 
 async function runPerformanceTest() {
   const results = await client.performanceTestApi(API);
@@ -9,6 +9,6 @@ async function runPerformanceTest() {
 }
 
 client.framework.listen(3000, () => {
-  console.log("Listening on port 3000!");
+  console.log('Listening on port 3000!');
   runPerformanceTest();
 });

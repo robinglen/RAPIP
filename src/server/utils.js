@@ -1,4 +1,4 @@
-const request = require("request-promise");
+const request = require('request-promise');
 
 async function fetchData(url, headers) {
   const time = process.hrtime();
@@ -10,11 +10,12 @@ async function fetchData(url, headers) {
     });
     const diff = process.hrtime(time);
     const ms = convertNanToMilliSeconds(diff);
-    const size = response.headers["Content-Length"] / 1024;
+    console.log(response.headers);
+    const size = response.headers['content-length'] / 1024;
     // add support for Accept-Encoding: "gzip, deflate, sdch, br",
     // currently only supporting gzip
-    const contentEncoding = response.headers["Content-Encoding"];
-    const gzipEnabled = contentEncoding === "gzip" ? true : false;
+    const contentEncoding = response.headers['content-encoding'];
+    const gzipEnabled = contentEncoding === 'gzip' ? true : false;
     return {
       data: response,
       timings: ms,

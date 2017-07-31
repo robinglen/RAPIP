@@ -1,18 +1,18 @@
 async function fetchData(url, headers) {
   try {
-    performance.mark("fetch-request-start");
+    performance.mark('fetch-request-start');
     const response = await fetch(url, {
       headers: headers
     });
-    performance.mark("fetch-request-end");
+    performance.mark('fetch-request-end');
     performance.measure(
-      "fetch-request-audit",
-      "fetch-request-start",
-      "fetch-request-end"
+      'fetch-request-audit',
+      'fetch-request-start',
+      'fetch-request-end'
     );
 
     const performanceMeasures = performance.getEntriesByName(
-      "fetch-request-audit"
+      'fetch-request-audit'
     );
     const timings = performanceMeasures[
       performanceMeasures.length - 1
@@ -24,11 +24,10 @@ async function fetchData(url, headers) {
     };
 
     // checking for performance overheads of using rapip proxy
-    const rapipProxyHeader = response.headers.get("x-rapip-proxy");
-    console.log(rapipProxyHeader);
+    const rapipProxyHeader = response.headers.get('x-rapip-proxy');
     let rapipProxyOverhead = 0;
     if (rapipProxyHeader) {
-      rapipProxyOverhead = response.headers.get("x-rapip-proxy-overhead");
+      rapipProxyOverhead = response.headers.get('x-rapip-proxy-overhead');
       // adding a proxy object which users might find useful
       performanceObj.proxy = {
         requestTime: timings,
@@ -44,19 +43,19 @@ async function fetchData(url, headers) {
 }
 
 function getDataWithXHR(url, headers = {}, callback) {
-  performance.mark("xhr-request-start");
+  performance.mark('xhr-request-start');
   var request = new XMLHttpRequest();
   request.onload = response => {
-    performance.mark("xhr-request-end");
+    performance.mark('xhr-request-end');
 
     performance.measure(
-      "xhr-request-audit",
-      "xhr-request-start",
-      "xhr-request-end"
+      'xhr-request-audit',
+      'xhr-request-start',
+      'xhr-request-end'
     );
 
     const performanceMeasures = performance.getEntriesByName(
-      "xhr-request-audit"
+      'xhr-request-audit'
     );
     const timings = performanceMeasures[
       performanceMeasures.length - 1
@@ -68,10 +67,10 @@ function getDataWithXHR(url, headers = {}, callback) {
     };
 
     // checking for performance overheads of using rapip proxy
-    const rapipProxyHeader = request.getResponseHeader("x-rapip-proxy");
+    const rapipProxyHeader = request.getResponseHeader('x-rapip-proxy');
     let rapipProxyOverhead = 0;
     if (rapipProxyHeader) {
-      rapipProxyOverhead = request.getResponseHeader("x-rapip-proxy-overhead");
+      rapipProxyOverhead = request.getResponseHeader('x-rapip-proxy-overhead');
       // adding a proxy object which users might find useful
       performanceObj.proxy = {
         requestTime: timings,
@@ -84,7 +83,7 @@ function getDataWithXHR(url, headers = {}, callback) {
     callback(performanceObj);
   };
 
-  request.open("GET", url, true);
+  request.open('GET', url, true);
   for (var header in headers) {
     request.setRequestHeader(header, headers[header]);
   }
@@ -92,24 +91,24 @@ function getDataWithXHR(url, headers = {}, callback) {
 }
 
 async function parseJson(response) {
-  performance.mark("parse-start");
+  performance.mark('parse-start');
   const json = await response.json();
-  performance.mark("parse-end");
-  performance.measure("parse-audit", "parse-start", "parse-end");
-  const timings = performance.getEntriesByName("parse-audit")[0].duration;
+  performance.mark('parse-end');
+  performance.measure('parse-audit', 'parse-start', 'parse-end');
+  const timings = performance.getEntriesByName('parse-audit')[0].duration;
   return timings.toFixed(0);
 }
 
 function parseStringToJSON(data) {
-  performance.mark("parse-string-start");
+  performance.mark('parse-string-start');
   const json = JSON.parse(data);
-  performance.mark("parse-string-end");
+  performance.mark('parse-string-end');
   performance.measure(
-    "parse-string-audit",
-    "parse-string-start",
-    "parse-string-end"
+    'parse-string-audit',
+    'parse-string-start',
+    'parse-string-end'
   );
-  const timings = performance.getEntriesByName("parse-string-audit")[0]
+  const timings = performance.getEntriesByName('parse-string-audit')[0]
     .duration;
   return timings.toFixed(0);
 }
@@ -118,7 +117,7 @@ async function performanceTestApiWithFetch(path, headers) {
   const response = await fetchData(path, headers);
   const parse = await parseJson(response.data);
   const performanceMetrics = formatPerformanceMetrics(
-    "Fetch",
+    'Fetch',
     response,
     parse,
     path
@@ -135,7 +134,7 @@ function performanceTestApiWithXHR(path, headers) {
     const timings = getDataWithXHR(path, headers, response => {
       const parse = parseStringToJSON(response.data);
       const performanceMetrics = formatPerformanceMetrics(
-        "XHR",
+        'XHR',
         response,
         parse,
         path
@@ -166,7 +165,7 @@ function formatPerformanceMetrics(name, request, parse, api) {
 
 // A performance demo you can call if you want to test just in the browser
 function performanceDemo() {
-  performanceTestApiWithXHR("https://httpbin.org/user-agent");
+  performanceTestApiWithXHR('https://httpbin.org/user-agent');
 
-  performanceTestApiWithFetch("https://httpbin.org/user-agent");
+  performanceTestApiWithFetch('https://httpbin.org/user-agent');
 }
