@@ -146,17 +146,22 @@ async function getServersideHeaders(url, headers) {
 
     // add support for Accept-Encoding: "gzip, deflate, sdch, br", - in the future
     const gzipEnabled = contentEncoding === 'gzip' ? true : false;
-    let size;
+    let size = {
+      raw: 0,
+      'content-length': true
+    };
     // get content length
     if (response.headers['content-length']) {
-      size = (response.headers['content-length'] / 1024).toFixed(2);
+      size.raw = (response.headers['content-length'] / 1024).toFixed(2);
     } else {
       if (gzipEnabled) {
         const gzipAsync = promisify(zlib.gzip);
-        size = await gzipAsync(response.body);
-        size = (size.byteLength / 1024).toFixed(2);
+        let gzip = await gzipAsync(response.body);
+        size.raw = (gzip.byteLength / 1024).toFixed(2);
+        size['content-length'] = false;
       } else {
-        size = (Buffer.byteLength(response.body) / 1024).toFixed(2);
+        size.raw = (Buffer.byteLength(response.body) / 1024).toFixed(2);
+        size['content-length'] = false;
       }
     }
 
@@ -164,8 +169,9 @@ async function getServersideHeaders(url, headers) {
       api: api,
       gzipEnabled: gzipEnabled,
       size: {
-        raw: Number(size),
-        message: `${size}kb`
+        raw: Number(size.raw),
+        message: `${size.raw}kb`,
+        'content-length': size['content-length']
       }
     };
   } catch (error) {
