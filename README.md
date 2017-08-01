@@ -212,7 +212,7 @@ client.framework.listen(3000, () => {
 });
 ```
 
-The call will now goto the proxy service and use the 
+The call will now goto the proxy service and use the
 
 
 
@@ -221,7 +221,7 @@ The call will now goto the proxy service and use the
 * Test all of the gzip work and add back in if needs be compressed
 
 Test in client:
-performanceTestApiWithXHR('http://localhost:3000/api', {'x-rapip-api': 'http://www.matchesfashion.com/mens/just-in/just-in-this-month?page=1&noOfRecordsPerPage=60&sort=&q=&format=json&navMode=notfull&noattraqt=Set', 'x-rapip-headers': '{"test":1}'})
+performanceTestApiWithXHR('http://localhost:3000/api', {'x-rapip-api': 'http://www.matchesfashion.com/mens/just-in/just-in-this-month?page=1&noOfRecordsPerPage=60&sort=&q=&format=json&navMode=notfull&noattraqt=Set')
 
 ## TODO
 * add build and deploy steps

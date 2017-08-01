@@ -122,9 +122,6 @@ async function performanceTestApiWithFetch(path, headers) {
     parse,
     path
   );
-  if (response.proxy) {
-    performanceMetrics.proxy = response.proxy;
-  }
   console.log(performanceMetrics);
   return JSON.stringify(performanceMetrics);
 }
@@ -139,9 +136,6 @@ function performanceTestApiWithXHR(path, headers) {
         parse,
         path
       );
-      if (response.proxy) {
-        performanceMetrics.proxy = response.proxy;
-      }
       console.log(performanceMetrics);
       performance.clearResourceTimings();
       resolve(JSON.stringify(performanceMetrics));
@@ -150,7 +144,7 @@ function performanceTestApiWithXHR(path, headers) {
 }
 
 function formatPerformanceMetrics(name, request, parse, api) {
-  return {
+  let performanceMetrics = {
     name: name,
     request: {
       raw: Number(request.timings),
@@ -161,6 +155,23 @@ function formatPerformanceMetrics(name, request, parse, api) {
       message: `${parse}ms`
     }
   };
+  if (request.proxy) {
+    performanceMetrics.proxy = {
+      requestTime: {
+        raw: Number(request.proxy.requestTime),
+        message: `${request.proxy.requestTime}ms`
+      },
+      proxyOverhead: {
+        raw: Number(request.proxy.proxyOverhead),
+        message: `${request.proxy.proxyOverhead}ms`
+      },
+      requestTimeWithCorrection: {
+        raw: Number(request.proxy.requestTimeWithCorrection),
+        message: `${request.proxy.requestTimeWithCorrection}ms`
+      }
+    };
+  }
+  return performanceMetrics;
 }
 
 // A performance demo you can call if you want to test just in the browser

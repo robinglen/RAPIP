@@ -50,7 +50,7 @@ app.get('/api', (req, res) => {
         gzip: true
       });
       const time = process.hrtime();
-      const headers = getProxyHeaders(response.headers);
+      const headers = getProxyHeaders(response.headers, api);
 
       // check if its expected to be gzipped
       if (headers['content-encoding'] === 'gzip') {
@@ -59,7 +59,6 @@ app.get('/api', (req, res) => {
           render(headers, result, time);
         });
       } else {
-        console.log('no gzip');
         render(headers, response.body, time);
       }
     } catch (error) {
@@ -80,12 +79,13 @@ app.get('/api', (req, res) => {
   }
 });
 
-function getProxyHeaders(headers) {
+function getProxyHeaders(headers, api) {
   // add RAPIP requried headers
   headers['access-control-expose-headers'] =
     'x-rapip-proxy, x-rapip-proxy-overhead';
   headers['access-control-allow-origin'] = '*';
   headers['x-rapip-proxy'] = 'HIT';
+  headers['x-rapip-api'] = api;
   return headers;
 }
 

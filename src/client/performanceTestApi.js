@@ -21,9 +21,7 @@ async function performanceTestApi(
   headless = true,
   url = 'http://localhost:3000'
 ) {
-  let performanceMetrics = {
-    api: api
-  };
+  let performanceMetrics = {};
   // configure throttling
   emulator.cpu = emulator.cpuThrottling
     ? emulation.settings.CPU_THROTTLE_METRICS
@@ -61,8 +59,9 @@ async function performanceTestApi(
     await Page.enable();
 
     // Client will not let us by default get some specific headers
-    // so we are going around it we call tha pi from the server before mobile perf testing
+    // so we are going around it we call the api from the server before mobile perf testing
     const serverHeaders = await getServersideHeaders(api, headers);
+    performanceMetrics.api = serverHeaders.api;
     performanceMetrics.gzipEnabled = serverHeaders.gzipEnabled;
     performanceMetrics.size = serverHeaders.size;
 
@@ -115,6 +114,10 @@ async function getServersideHeaders(url, headers) {
       headers: headers,
       resolveWithFullResponse: true
     });
+    let api = url;
+    if (response.headers['x-rapip-api']) {
+      api = response.headers['x-rapip-api'];
+    }
     const contentEncoding = response.headers['content-encoding'];
     const rapipProxyEnabled = false;
     const rapipProxyOverhead = 0;
@@ -123,6 +126,7 @@ async function getServersideHeaders(url, headers) {
     const gzipEnabled = contentEncoding === 'gzip' ? true : false;
     const size = (response.headers['content-length'] / 1024).toFixed(2);
     return {
+      api: api,
       gzipEnabled: gzipEnabled,
       size: {
         raw: Number(size),
@@ -131,6 +135,7 @@ async function getServersideHeaders(url, headers) {
     };
   } catch (error) {
     return {
+      api: url,
       gzipEnabled: 'failed',
       size: 'failed'
     };
