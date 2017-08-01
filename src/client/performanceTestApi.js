@@ -1,6 +1,8 @@
 const chromeLauncher = require('chrome-launcher');
 const CDP = require('chrome-remote-interface');
 const request = require('request-promise');
+const zlib = require('zlib');
+const { promisify } = require('util');
 // taken from lighthouse
 // https://github.com/GoogleChrome/lighthouse/blob/63b4ac14d0a871ade0630db2885edd7848843243/lighthouse-core/lib/emulation.js
 const emulation = require('./emulation');
@@ -74,11 +76,23 @@ async function performanceTestApi(
     performanceMetrics.emulation.userAgent = userAgent.result.value;
 
     // setting params for api calls
+    // Im sorry for this code
     let params = `"${api}"`;
-    if (headers) {
-      const headersString = JSON.stringify(headers);
-      params = `"${api}", ${headersString}`;
+    if (headers && headers['x-rapip-api']) {
+      let headerString = JSON.stringify(headers);
+      if (headers['x-rapip-api']) {
+        headerString = `{'x-rapip-api': '${headers['x-rapip-api']}'}`;
+        if (headers['x-rapip-headers']) {
+          const string = JSON.stringify(headers['x-rapip-headers']);
+          headerString = `{'x-rapip-api': '${headers[
+            'x-rapip-api'
+          ]}', 'x-rapip-headers': '${string}'}`;
+        }
+      }
+      params = `"${api}", ${headerString}`;
     }
+
+    console.log(params);
 
     const fetchPerformanceMetrics = await Runtime.evaluate({
       awaitPromise: true,
@@ -108,23 +122,44 @@ async function performanceTestApi(
 }
 
 async function getServersideHeaders(url, headers) {
+  let headersObj = headers;
+  headersObj['user-agent'] = emulation.settings.NEXUS5X_USERAGENT;
+  let api = url;
+  if (headers['x-rapip-api']) {
+    api = headers['x-rapip-api'];
+  }
+  if (headers['x-rapip-headers']) {
+    headersObj = headers['x-rapip-headers'];
+  }
+
   try {
     const response = await request({
-      uri: url,
-      headers: headers,
-      resolveWithFullResponse: true
+      uri: api,
+      headers: headersObj,
+      resolveWithFullResponse: true,
+      gzip: true
     });
-    let api = url;
-    if (response.headers['x-rapip-api']) {
-      api = response.headers['x-rapip-api'];
-    }
+
     const contentEncoding = response.headers['content-encoding'];
     const rapipProxyEnabled = false;
     const rapipProxyOverhead = 0;
 
     // add support for Accept-Encoding: "gzip, deflate, sdch, br", - in the future
     const gzipEnabled = contentEncoding === 'gzip' ? true : false;
-    const size = (response.headers['content-length'] / 1024).toFixed(2);
+    let size;
+    // get content length
+    if (response.headers['content-length']) {
+      size = (response.headers['content-length'] / 1024).toFixed(2);
+    } else {
+      if (gzipEnabled) {
+        const gzipAsync = promisify(zlib.gzip);
+        size = await gzipAsync(response.body);
+        size = (size.byteLength / 1024).toFixed(2);
+      } else {
+        size = (Buffer.byteLength(response.body) / 1024).toFixed(2);
+      }
+    }
+
     return {
       api: api,
       gzipEnabled: gzipEnabled,

@@ -35,6 +35,7 @@ app.get('/api', (req, res) => {
   const requestHeaders = req.headers;
   const api = requestHeaders['x-rapip-api'];
   const headers = requestHeaders['x-rapip-headers'];
+
   let headersObj = {};
   if (headers) {
     headersObj = JSON.parse(headers);
