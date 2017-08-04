@@ -2,16 +2,48 @@ const { client } = require('../src');
 
 const proxy = 'http://localhost:3000/api';
 
+// flat test - works
+// async function runPerformanceTest() {
+//   const results = await client.performanceTestApi(
+//     'https://httpbin.org/user-agent'
+//   );
+//   console.log(results);
+//   process.exit(0);
+// }
+
+// flat with headers
 async function runPerformanceTest() {
   const results = await client.performanceTestApi(
-    'https://ecomm.ynap.biz/os/os1/search/resources/store/Moncler_GB/productview/byCategory/3074457345616678867?pageSize=50&pageNumber=1&',
+    'https://ecomm.ynap.biz/os/os1/search/resources/store/Moncler_GB/productview/byCategory/3074457345616678867?pageSize=50&pageNumber=4',
     {
       'X-IBM-Client-Id': 'dea579ee-1cb3-43ad-9775-b2015636d560'
     }
   );
-  console.log(results.response);
+  console.log(results);
   process.exit(0);
 }
+
+// test with simple proxy - works
+// async function runPerformanceTest() {
+//   const results = await client.performanceTestApi(proxy, {
+//     'x-rapip-api':
+//       'http://www.matchesfashion.com/mens/just-in/just-in-this-month?page=1&noOfRecordsPerPage=60&sort=&q=&format=json&navMode=notfull&noattraqt=Set'
+//   });
+//   console.log(results.response);
+//   process.exit(0);
+// }
+
+// async function runPerformanceTest() {
+//   const results = await client.performanceTestApi(proxy, {
+//     'x-rapip-api':
+//       'https://ecomm.ynap.biz/os/os1/search/resources/store/Moncler_GB/productview/byCategory/3074457345616678867?pageSize=50&pageNumber=1&',
+//     'x-rapip-headers': {
+//       'X-IBM-Client-Id': 'dea579ee-1cb3-43ad-9775-b2015636d560'
+//     }
+//   });
+//   console.log(results.response);
+//   process.exit(0);
+// }
 
 // async function runPerformanceTest() {
 //   const results = await client.performanceTestApi(proxy, {

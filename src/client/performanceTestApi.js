@@ -63,65 +63,82 @@ async function performanceTestApi(
     // Client will not let us by default get some specific headers
     // so we are going around it we call the api from the server before mobile perf testing
     const serverHeaders = await getServersideHeaders(api, headers);
-    performanceMetrics.api = serverHeaders.api;
-    performanceMetrics.gzipEnabled = serverHeaders.gzipEnabled;
-    performanceMetrics.size = serverHeaders.size;
 
-    await Page.navigate({ url: url });
-    await Page.loadEventFired();
+    // check if its worked
+    if (serverHeaders.error) {
+      chrome.kill();
+      return {
+        error: serverHeaders.error
+      };
+    } else {
+      performanceMetrics.api = serverHeaders.api;
+      performanceMetrics.gzipEnabled = serverHeaders.gzipEnabled;
+      performanceMetrics.size = serverHeaders.size;
 
-    const userAgent = await Runtime.evaluate({
-      expression: 'navigator.userAgent'
-    });
-    performanceMetrics.emulation.userAgent = userAgent.result.value;
+      await Page.navigate({ url: url });
+      await Page.loadEventFired();
 
-    // setting params for api calls
-    // Im sorry for this code
-    let params = `"${api}"`;
-    if (headers && headers['x-rapip-api']) {
-      let headerString = JSON.stringify(headers);
-      if (headers['x-rapip-api']) {
-        headerString = `{'x-rapip-api': '${headers['x-rapip-api']}'}`;
-        if (headers['x-rapip-headers']) {
-          const string = JSON.stringify(headers['x-rapip-headers']);
-          headerString = `{'x-rapip-api': '${headers[
-            'x-rapip-api'
-          ]}', 'x-rapip-headers': '${string}'}`;
+      const userAgent = await Runtime.evaluate({
+        expression: 'navigator.userAgent'
+      });
+      performanceMetrics.emulation.userAgent = userAgent.result.value;
+
+      // setting params for api calls
+      // Im sorry for this code
+      let params = `"${api}"`;
+      if (headers && headers['x-rapip-api']) {
+        let headerString = JSON.stringify(headers);
+        if (headers['x-rapip-api']) {
+          headerString = `{'x-rapip-api': '${headers['x-rapip-api']}'}`;
+          if (headers['x-rapip-headers']) {
+            const string = JSON.stringify(headers['x-rapip-headers']);
+            headerString = `{'x-rapip-api': '${headers[
+              'x-rapip-api'
+            ]}', 'x-rapip-headers': '${string}'}`;
+          }
         }
+        params = `"${api}", ${headerString}`;
       }
-      params = `"${api}", ${headerString}`;
+
+      const fetchPerformanceMetrics = await Runtime.evaluate({
+        awaitPromise: true,
+        expression: `performanceTestApiWithFetch(${params})`
+      });
+
+      if (fetchPerformanceMetrics.result.value) {
+        performanceMetrics.fetch = JSON.parse(
+          fetchPerformanceMetrics.result.value
+        );
+      } else {
+        performanceMetrics.fetch = 'error';
+      }
+
+      // reset the page to make sure its clean each time
+      await Page.navigate({ url: url });
+      await Page.loadEventFired();
+
+      const xhrPerformanceMetrics = await Runtime.evaluate({
+        awaitPromise: true,
+        expression: `performanceTestApiWithXHR(${params})`
+      });
+
+      if (xhrPerformanceMetrics.result.value) {
+        performanceMetrics.xhr = JSON.parse(xhrPerformanceMetrics.result.value);
+      } else {
+        performanceMetrics.xhr = 'error';
+      }
+
+      chrome.kill();
+      return {
+        response: performanceMetrics
+      };
     }
-
-    console.log(params);
-
-    const fetchPerformanceMetrics = await Runtime.evaluate({
-      awaitPromise: true,
-      expression: `performanceTestApiWithFetch(${params})`
-    });
-
-    performanceMetrics.fetch = JSON.parse(fetchPerformanceMetrics.result.value);
-
-    // reset the page to make sure its clean each time
-    await Page.navigate({ url: url });
-    await Page.loadEventFired();
-
-    const xhrPerformanceMetrics = await Runtime.evaluate({
-      awaitPromise: true,
-      expression: `performanceTestApiWithXHR(${params})`
-    });
-
-    performanceMetrics.xhr = JSON.parse(xhrPerformanceMetrics.result.value);
-
-    chrome.kill();
-    return {
-      response: performanceMetrics
-    };
   } catch (error) {
     return { error: error };
   }
 }
 
-async function getServersideHeaders(url, headers) {
+async function getServersideHeaders(url, headers = {}) {
   let headersObj = headers;
   headersObj['user-agent'] = emulation.settings.NEXUS5X_USERAGENT;
   let api = url;
@@ -176,9 +193,7 @@ async function getServersideHeaders(url, headers) {
     };
   } catch (error) {
     return {
-      api: url,
-      gzipEnabled: 'failed',
-      size: 'failed'
+      error: error
     };
   }
 }
