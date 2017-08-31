@@ -10,7 +10,6 @@ async function fetchData(url, headers) {
     });
     const diff = process.hrtime(time);
     const ms = convertNanToMilliSeconds(diff);
-    console.log(response.headers);
     const size = response.headers['content-length'] / 1024;
     // add support for Accept-Encoding: "gzip, deflate, sdch, br",
     // currently only supporting gzip
