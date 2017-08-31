@@ -1,6 +1,6 @@
 {
   "name": "rapip",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "REST API Performance. Test APIs from the perspective of both a Mobile phone and a Node server",
   "main": "src/index.js",
   "scripts": {
