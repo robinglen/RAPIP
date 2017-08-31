@@ -31,6 +31,7 @@ app.get('/', (req, res) => {
 // to get around this:
 // https://t.co/vUbhobbDYT
 app.get('/api', (req, res) => {
+
   // collecting headers and making it possible to proxy the api request
   const requestHeaders = req.headers;
   const api = requestHeaders['x-rapip-api'];
@@ -39,17 +40,20 @@ app.get('/api', (req, res) => {
   let headersObj = {};
   if (headers) {
     headersObj = JSON.parse(headers);
-    headersObj['User-Agent'] = emulation.settings.NEXUS5X_USERAGENT.userAgent;
   }
+
+  headersObj['User-Agent'] = emulation.settings.NEXUS5X_USERAGENT.userAgent;
 
   (async () => {
     try {
+
       const response = await request({
         url: api,
         headers: headersObj,
         resolveWithFullResponse: true,
         gzip: true
       });
+
       const time = process.hrtime();
       const headers = getProxyHeaders(response.headers, api);
 
@@ -63,8 +67,8 @@ app.get('/api', (req, res) => {
         render(headers, response.body, time);
       }
     } catch (error) {
-      res.end(error);
       console.log(error);
+      res.end(error);
     }
   })();
 

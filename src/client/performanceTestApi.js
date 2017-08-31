@@ -170,6 +170,7 @@ async function getServersideHeaders(url, headers = {}) {
     // get content length
     if (response.headers['content-length']) {
       size.raw = (response.headers['content-length'] / 1024).toFixed(2);
+      size['content-length'] = true;
     } else {
       if (gzipEnabled) {
         const gzipAsync = promisify(zlib.gzip);
