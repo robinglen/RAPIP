@@ -1,14 +1,14 @@
 const { client } = require('../src');
 
-const proxy = 'http://localhost:3000/api';
+const PROXY = 'https://localhost:3000/api';
+const API = 'https://httpbin.org/user-agent';
+const HEADERS = {
+  'x-rapip-api': API
+}
 
-test with simple proxy - works
 async function runPerformanceTest() {
-  const results = await client.performanceTestApi(proxy, {
-    'x-rapip-api':
-      'https://httpbin.org/user-agent'
-  });
-  console.log(results.response);
+  const results = await client.performanceTestApi(PROXY, HEADERS);
+  console.log(results.response.fetch);
   process.exit(0);
 }
 

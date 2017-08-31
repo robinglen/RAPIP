@@ -177,6 +177,5 @@ function formatPerformanceMetrics(name, request, parse, api) {
 // A performance demo you can call if you want to test just in the browser
 function performanceDemo() {
   performanceTestApiWithXHR('https://httpbin.org/user-agent');
-
   performanceTestApiWithFetch('https://httpbin.org/user-agent');
 }
