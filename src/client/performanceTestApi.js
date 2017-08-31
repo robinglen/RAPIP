@@ -32,33 +32,12 @@ async function performanceTestApi(
     ? emulation.settings.TYPICAL_MOBILE_THROTTLING_METRICS
     : emulation.settings.NO_THROTTLING_METRICS;
   try {
-    const chrome = await launchChrome(headless);
-    const client = await CDP({ port: chrome.port });
-    const { Network, Emulation, Page, Runtime } = client;
+    const { client, chrome } = await _configureChrome(headless, url, emulator);
+    const { Runtime } = client;
 
     performanceMetrics.emulation = emulation.getEmulationDesc();
-
-    // logging requests
-    Network.requestWillBeSent(params => {
-      // is this needed? maybe as an event?
-      console.log(`Request: ${params.request.url}`);
-    });
-
-    // make sure the session doesn't cache
-    await Network.setCacheDisabled({ cacheDisabled: true });
-
-    // set emulation
-    await Emulation.setCPUThrottlingRate(emulator.cpu);
-    await Emulation.setDeviceMetricsOverride(
-      emulation.settings.NEXUS5X_EMULATION_METRICS
-    );
-
-    // configure network
-    await Network.setUserAgentOverride(emulation.settings.NEXUS5X_USERAGENT);
-    await Network.emulateNetworkConditions(emulator.network);
-
-    await Network.enable();
-    await Page.enable();
+    performanceMetrics.emulation.userAgent =
+      emulation.settings.NEXUS5X_USERAGENT.userAgent;
 
     // Client will not let us by default get some specific headers
     // so we are going around it we call the api from the server before mobile perf testing
@@ -74,14 +53,6 @@ async function performanceTestApi(
       performanceMetrics.api = serverHeaders.api;
       performanceMetrics.gzipEnabled = serverHeaders.gzipEnabled;
       performanceMetrics.size = serverHeaders.size;
-
-      await Page.navigate({ url: url });
-      await Page.loadEventFired();
-
-      const userAgent = await Runtime.evaluate({
-        expression: 'navigator.userAgent'
-      });
-      performanceMetrics.emulation.userAgent = userAgent.result.value;
 
       // setting params for api calls
       // Im sorry for this code
@@ -113,11 +84,17 @@ async function performanceTestApi(
         performanceMetrics.fetch = 'error';
       }
 
-      // reset the page to make sure its clean each time
-      await Page.navigate({ url: url });
-      await Page.loadEventFired();
+      // We need to kill chrome each time because for some reason
+      // which ever call (Fetch or XHR) the first one is slower
+      // even if I reload page, new tab and clear caches
+      // Averages don't fix either, chrome must be doing something smart
+      chrome.kill();
+      // this is a bit gross
+      const chromeObj = await _configureChrome(headless, url, emulator);
+      const runtime2 = chromeObj.client.Runtime;
+      const chrome2 = chromeObj.chrome;
 
-      const xhrPerformanceMetrics = await Runtime.evaluate({
+      const xhrPerformanceMetrics = await runtime2.evaluate({
         awaitPromise: true,
         expression: `performanceTestApiWithXHR(${params})`
       });
@@ -128,7 +105,7 @@ async function performanceTestApi(
         performanceMetrics.xhr = 'error';
       }
 
-      chrome.kill();
+      chrome2.kill();
       return {
         response: performanceMetrics
       };
@@ -197,6 +174,39 @@ async function getServersideHeaders(url, headers = {}) {
       error: error
     };
   }
+}
+
+async function _configureChrome(headless, url, emulator) {
+  const chrome = await launchChrome(headless);
+  const client = await CDP({ port: chrome.port });
+  const { Network, Emulation, Page, Runtime } = client;
+
+  // logging requests
+  Network.requestWillBeSent(params => {
+    // is this needed? maybe as an event?
+    console.log(`Request: ${params.request.url}`);
+  });
+
+  // make sure the session doesn't cache
+  await Network.setCacheDisabled({ cacheDisabled: true });
+
+  // set emulation
+  await Emulation.setCPUThrottlingRate(emulator.cpu);
+  await Emulation.setDeviceMetricsOverride(
+    emulation.settings.NEXUS5X_EMULATION_METRICS
+  );
+
+  // configure network
+  await Network.setUserAgentOverride(emulation.settings.NEXUS5X_USERAGENT);
+  await Network.emulateNetworkConditions(emulator.network);
+
+  await Network.enable();
+  await Page.enable();
+
+  await Page.navigate({ url: url });
+  await Page.loadEventFired();
+
+  return { client, chrome };
 }
 
 module.exports = performanceTestApi;
