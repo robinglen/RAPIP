@@ -300,6 +300,7 @@ You can try this example with the command:
 ```
 
 ## TODO
+* update to use puppeter over CDP
 * add build and deploy steps
 * Clean the code
 * Add some tests
